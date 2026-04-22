@@ -169,39 +169,45 @@ local main = newPage("main")
 
 local Auto = newPage("Auto")
 
---// AUTO SUB-PAGE SYSTEM (FIXED + CLEAN)
+--// AUTO SUB-PAGE SYSTEM (FIXED STRUCTURE SAFE)
 
 local autoPages = {}
 
-local autoHolder = createFrame(Auto, UDim2.new(1, 0, 1, 0), UDim2.new(0, 0, 0, 0), CONFIG.COLORS.BG, 0)
-autoHolder.BackgroundTransparency = 1
+-- IMPORTANT: USE Auto directly, DO NOT create autoHolder
+Auto.BackgroundTransparency = 1
 
---// TOP BAR
-local autoTopBar = createFrame(autoHolder, UDim2.new(1, 0, 0, 35), UDim2.new(0, 0, 0, 0), CONFIG.COLORS.DARK, 0)
+--// TOP BAR (INSIDE AUTO PAGE)
+local autoTopBar = createFrame(
+	Auto,
+	UDim2.new(1, 0, 0, 40),
+	UDim2.new(0, 0, 0, 0),
+	CONFIG.COLORS.DARK,
+	0
+)
 
 local autoList = Instance.new("UIListLayout")
 autoList.FillDirection = Enum.FillDirection.Horizontal
-autoList.Padding = UDim.new(0, 8)
+autoList.Padding = UDim.new(0, 10)
 autoList.VerticalAlignment = Enum.VerticalAlignment.Center
 autoList.Parent = autoTopBar
 
 local autoPad = Instance.new("UIPadding")
-autoPad.PaddingLeft = UDim.new(0, 8)
+autoPad.PaddingLeft = UDim.new(0, 10)
 autoPad.Parent = autoTopBar
 
-autoTopBar.ClipsDescendants = true
-
---// PAGE HOLDER
+--// PAGE AREA (REST OF AUTO PAGE)
 local autoPageHolder = createFrame(
-	autoHolder,
-	UDim2.new(1, 0, 1, -35),
-	UDim2.new(0, 0, 0, 35),
+	Auto,
+	UDim2.new(1, 0, 1, -40),
+	UDim2.new(0, 0, 0, 40),
 	CONFIG.COLORS.BG,
 	0
 )
-autoPageHolder.BackgroundTransparency = 1
 
---// CREATE AUTO PAGES
+autoPageHolder.BackgroundTransparency = 1
+autoPageHolder.ClipsDescendants = true
+
+--// CREATE SUB PAGES
 local function createAutoPage(name)
 	local p = createFrame(
 		autoPageHolder,
@@ -210,9 +216,9 @@ local function createAutoPage(name)
 		CONFIG.COLORS.BG,
 		0
 	)
+
 	p.BackgroundTransparency = 1
 	p.Visible = false
-	p.ZIndex = 2
 	autoPages[name] = p
 	return p
 end
@@ -222,32 +228,27 @@ local AutoBoss = createAutoPage("AutoBoss")
 local AutoWeapon = createAutoPage("AutoWeapon")
 local AutoBuy = createAutoPage("AutoBuy")
 
--- ensure only one visible
-for _, p in pairs(autoPages) do
-	p.Visible = false
-end
-
 AutoMob.Visible = true
 
---// SWITCH FUNCTION
+--// SWITCH
 local function switchAuto(tab)
 	for name, page in pairs(autoPages) do
 		page.Visible = (name == tab)
 	end
 end
 
---// ACTIVE BUTTON STATE
-local activeAutoBtn
+--// ACTIVE BUTTON
+local activeBtn
 
-local function setAutoActive(btn)
-	if activeAutoBtn then
-		activeAutoBtn.BackgroundColor3 = CONFIG.COLORS.BTN_INACTIVE
+local function setActive(btn)
+	if activeBtn then
+		activeBtn.BackgroundColor3 = CONFIG.COLORS.BTN_INACTIVE
 	end
-	activeAutoBtn = btn
+	activeBtn = btn
 	btn.BackgroundColor3 = CONFIG.COLORS.BTN_ACTIVE
 end
 
---// TABS
+--// BUTTONS
 local autoTabs = {
 	{name = "AutoMob", text = "Auto Mob"},
 	{name = "AutoBoss", text = "Auto Boss"},
@@ -258,7 +259,7 @@ local autoTabs = {
 for i, tab in ipairs(autoTabs) do
 	local btn = createButton(
 		autoTopBar,
-		UDim2.new(0, 130, 1, -8), -- wider buttons
+		UDim2.new(0, 140, 0, 28),
 		UDim2.new(0, 0, 0, 0),
 		tab.text,
 		CONFIG.COLORS.BTN_INACTIVE,
@@ -271,12 +272,11 @@ for i, tab in ipairs(autoTabs) do
 
 	btn.MouseButton1Click:Connect(function()
 		switchAuto(tab.name)
-		setAutoActive(btn)
+		setActive(btn)
 	end)
 
-	-- default active
 	if i == 1 then
-		setAutoActive(btn)
+		setActive(btn)
 	end
 end
 
