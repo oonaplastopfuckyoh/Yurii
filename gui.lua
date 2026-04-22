@@ -178,76 +178,66 @@ local function switch(tab)
 	end
 end
 
---// AUTO PAGE SUB-PAGES
-local autoSubPages = {}
-local function newAutoSubPage(name)
-	local p = createFrame(Auto, UDim2.new(1, 0, 1, -40), UDim2.new(0, 0, 0, 40), CONFIG.COLORS.BG, 0)
-	p.BackgroundTransparency = 1
-	p.Visible = false
-	autoSubPages[name] = p
-	return p
-end
+--// AUTO PAGE - VERTICAL SWIPE SYSTEM
+local autoContent = createFrame(Auto, UDim2.new(1, 0, 1, 0), UDim2.new(0, 0, 0, 0), CONFIG.COLORS.BG, 0)
+local autoList = Instance.new("UIListLayout")
+autoList.Padding = UDim.new(0, 4)
+autoList.Parent = autoContent
 
-local autoMobPage = newAutoSubPage("AutoMob")
-local autoBossPage = newAutoSubPage("AutoBoss")
-local autoHakiPage = newAutoSubPage("Haki")
-local autoSwitchPage = newAutoSubPage("SwitchWeapons")
-local autoBuyPage = newAutoSubPage("AutoBuy")
+local autoPadContent = Instance.new("UIPadding")
+autoPadContent.PaddingTop = UDim.new(0, 8)
+autoPadContent.PaddingBottom = UDim.new(0, 8)
+autoPadContent.PaddingLeft = UDim.new(0, 8)
+autoPadContent.PaddingRight = UDim.new(0, 8)
+autoPadContent.Parent = autoContent
 
-local function switchAutoSubPage(subTab)
-	for n, p in pairs(autoSubPages) do
-		p.Visible = (n == subTab)
-	end
-end
-
---// AUTO TOP BAR
-local autoTopBar = createFrame(Auto, UDim2.new(1, 0, 0, 40), UDim2.new(0, 0, 0, 0), CONFIG.COLORS.DARK, 0)
-local autoListLayout = Instance.new("UIListLayout")
-autoListLayout.FillDirection = Enum.FillDirection.Horizontal
-autoListLayout.Padding = UDim.new(0, 4)
-autoListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-autoListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-autoListLayout.Parent = autoTopBar
-
-local autoPad = Instance.new("UIPadding")
-autoPad.PaddingLeft = UDim.new(0, 8)
-autoPad.PaddingRight = UDim.new(0, 8)
-autoPad.PaddingTop = UDim.new(0, 4)
-autoPad.PaddingBottom = UDim.new(0, 4)
-autoPad.Parent = autoTopBar
-
---// AUTO SUB-PAGE BUTTONS
-local autoSubBtns = {
-	{name = "AutoMob", displayName = "Auto Mob"},
-	{name = "AutoBoss", displayName = "Auto Boss"},
-	{name = "Haki", displayName = "Auto Haki"},
-	{name = "SwitchWeapons", displayName = "Switch Weapons"},
-	{name = "AutoBuy", displayName = "Auto Buy"}
+--// AUTO SECTIONS (Simple toggle buttons)
+local autoSections = {
+	{"Auto Mob", "AutoMob"},
+	{"Auto Boss", "AutoBoss"},
+	{"Auto Haki", "AutoHaki"},
+	{"Auto Upgrade", "AutoUpgrade"},
+	{"Switch Weapons", "SwitchWeapons"},
+	{"Auto Buy", "AutoBuy"}
 }
 
-local activeAutoBtn
-local function setActiveAutoBtn(btn)
-	if activeAutoBtn then
-		activeAutoBtn.BackgroundColor3 = CONFIG.COLORS.BTN_INACTIVE
-	end
-	activeAutoBtn = btn
-	btn.BackgroundColor3 = CONFIG.COLORS.BTN_ACTIVE
-end
-
-for i, subTab in ipairs(autoSubBtns) do
-	local btn = createButton(autoTopBar, UDim2.new(0, 70, 0, 28), UDim2.new(0, 0, 0, 0), subTab.displayName, CONFIG.COLORS.BTN_INACTIVE, CONFIG.COLORS.MAIN, 6)
-	btn.Font = Enum.Font.Gotham
-	btn.TextSize = 11
-	btn.TextXAlignment = Enum.TextXAlignment.Center
+for _, section in ipairs(autoSections) do
+	local sectionFrame = createFrame(autoContent, UDim2.new(1, -16, 0, 32), UDim2.new(0, 0, 0, 0), CONFIG.COLORS.BTN_INACTIVE, 6)
 	
-	btn.MouseButton1Click:Connect(function()
-		switchAutoSubPage(subTab.name)
-		setActiveAutoBtn(btn)
+	createLabel(sectionFrame, section[1], UDim2.new(1, 0, 1, 0), UDim2.new(0, 12, 0, 0), Enum.Font.Gotham, 14, CONFIG.COLORS.MAIN, 1)
+	
+	local toggleBtn = createButton(sectionFrame, UDim2.new(0, 24, 0, 24), UDim2.new(1, -28, 0.5, -12), "OFF", CONFIG.COLORS.CLOSE_BTN, Color3.new(1,1,1), 4)
+	toggleBtn.Font = Enum.Font.GothamBold
+	
+	-- Toggle functionality
+	local isToggled = false
+	toggleBtn.MouseButton1Click:Connect(function()
+		isToggled = not isToggled
+		if isToggled then
+			toggleBtn.Text = "ON"
+			toggleBtn.BackgroundColor3 = CONFIG.COLORS.BTN_ACTIVE
+		else
+			toggleBtn.Text = "OFF"
+			toggleBtn.BackgroundColor3 = CONFIG.COLORS.CLOSE_BTN
+		end
 	end)
 end
 
--- Show first sub-page by default
-autoMobPage.Visible = true
+-- Add scrolling
+local autoScrollingFrame = Instance.new("ScrollingFrame")
+autoScrollingFrame.Size = UDim2.new(1, 0, 1, 0)
+autoScrollingFrame.Position = UDim2.new(0, 0, 0, 0)
+autoScrollingFrame.BackgroundTransparency = 1
+autoScrollingFrame.BorderSizePixel = 0
+autoScrollingFrame.ScrollBarThickness = 4
+autoScrollingFrame.ScrollBarImageColor3 = CONFIG.COLORS.MAIN
+autoScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+autoScrollingFrame.Parent = Auto
+
+autoContent.Parent = autoScrollingFrame
+autoList:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+	autoScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, autoList.AbsoluteContentSize.Y)
+end)
 
 --// ACTIVE TAB
 local activeBtn
