@@ -221,28 +221,6 @@ local function createAutoPage(name)
 end
 
 local AutoMob = createAutoPage("AutoMob")
-local AutoTP = require(--[[your module path here]])
-
--- World 1 button
-w1Btn.MouseButton1Click:Connect(function()
-	AutoTP.Start(AutoTP.World1)
-end)
-
--- World 2 button
-w2Btn.MouseButton1Click:Connect(function()
-	AutoTP.Start(AutoTP.World2)
-end)
-
--- Pause / Resume
-pauseBtn.MouseButton1Click:Connect(function()
-	AutoTP.TogglePause()
-end)
-
--- Stop
-stopBtn.MouseButton1Click:Connect(function()
-	AutoTP.Stop()
-end)
-
 local AutoBoss = createAutoPage("AutoBoss")
 local AutoWeapon = createAutoPage("AutoWeapon")
 local AutoBuy = createAutoPage("AutoBuy")
@@ -311,118 +289,58 @@ local Misc = newPage("Misc")
 
 local Config = newPage("Config")
 
-local UI_SCALE = 1
 
-local function applyScale()
-	-- FRAME SIZE
-	frame.Size = UDim2.new(
-		0, CONFIG.SIZES.FRAME_WIDTH * UI_SCALE,
-		0, CONFIG.SIZES.FRAME_HEIGHT * UI_SCALE
-	)
 
-	-- SIDEBAR WIDTH
-	sidebar.Size = UDim2.new(
-		0, CONFIG.SIZES.SIDEBAR_WIDTH * UI_SCALE,
-		1, 0
-	)
+main.Visible = true
 
-	-- TOP BAR HEIGHT
-	topBar.Size = UDim2.new(1, 0, 0, 24 * UI_SCALE)
-
-	-- AUTO TOP BAR (if exists)
-	if autoTopBar then
-		autoTopBar.Size = UDim2.new(1, 0, 0, 28 * UI_SCALE)
+local function switch(tab)
+	for n, p in pairs(pages) do
+		p.Visible = (n == tab)
 	end
 end
 
 
- --// UI SCALE CONFIG (MATCH AUTO TOP BAR STYLE)
+--// TABS
+local tabs = {
+	{icon = "", name = "main", displayName = "Home"},
+	{icon = "⚡", name = "Auto", displayName = "Auto"},
+	{icon = "👤", name = "Player", displayName = "Player"},
+	{icon = "🌐", name = "Webhook", displayName = "Webhook"},
+	{icon = "•••", name = "Misc", displayName = "Misc"},
+	{icon = "⚙️", name = "Config", displayName = "Config"}
+}
 
-local scaleValue = 1
-local minScale = 0.5
-local maxScale = 1.5
+for _, tab in ipairs(tabs) do
+	local btn = createButton(sidebar, UDim2.new(1, -10, 0, 30), UDim2.new(0, 0, 0, 0), "", CONFIG.COLORS.BTN_INACTIVE, CONFIG.COLORS.MAIN, 8)
+	
+	createLabel(btn, tab.icon, UDim2.new(0, 22, 1, 0), UDim2.new(0, 8, 0, 0), Enum.Font.Gotham, 14, CONFIG.COLORS.MAIN, 1)
+	createLabel(btn, tab.displayName, UDim2.new(1, -40, 1, 0), UDim2.new(0, 35, 0, 0), Enum.Font.Gotham, 15, CONFIG.COLORS.MAIN, 1).TextXAlignment = Enum.TextXAlignment.Left
 
--- MAIN FRAME (same width style, height matches Auto top bar feel)
-local scaleFrame = createFrame(
-	Config,
-	UDim2.new(1, -20, 0, 28), -- MATCH AUTO TOP BAR HEIGHT
-	UDim2.new(0, 10, 0, 10),
-	CONFIG.COLORS.SIDEBAR_BG,
-	8
-)
-
--- TITLE (left side)
-createLabel(
-	scaleFrame,
-	"UI Scale",
-	UDim2.new(0, 80, 1, 0),
-	UDim2.new(0, 10, 0, 0),
-	Enum.Font.GothamBold,
-	14,
-	CONFIG.COLORS.MAIN,
-	1
-)
-
--- PERCENT (center)
-local percentLabel = createLabel(
-	scaleFrame,
-	"100%",
-	UDim2.new(0, 70, 1, 0),
-	UDim2.new(0.5, -35, 0, 0),
-	Enum.Font.GothamBold,
-	14,
-	CONFIG.COLORS.MAIN,
-	1
-)
-
--- MINUS BUTTON (same height as top bar)
-local minusBtn = createButton(
-	scaleFrame,
-	UDim2.new(0, 30, 1, -6),
-	UDim2.new(1, -70, 0, 3),
-	"-",
-	CONFIG.COLORS.BTN_INACTIVE,
-	CONFIG.COLORS.MAIN,
-	6
-)
-
--- PLUS BUTTON
-local plusBtn = createButton(
-	scaleFrame,
-	UDim2.new(0, 30, 1, -6),
-	UDim2.new(1, -35, 0, 3),
-	"+",
-	CONFIG.COLORS.BTN_INACTIVE,
-	CONFIG.COLORS.MAIN,
-	6
-)
-
--- UPDATE
-local function updateScale()
-	local percent = math.floor(UI_SCALE * 100)
-	percentLabel.Text = percent .. "%"
-
-	applyScale()
+	btn.MouseButton1Click:Connect(function()
+		switch(tab.name)
+		setActive(btn)
+	end)
 end
 
-minusBtn.MouseButton1Click:Connect(function()
-	UI_SCALE = math.clamp(UI_SCALE - 0.1, 0.5, 1.5)
-	updateScale()
+--// CLOSE / MINI TOGGLE
+closeBtn.MouseButton1Click:Connect(function()
+	frame.Visible = false
+	mini.Visible = true
 end)
 
-plusBtn.MouseButton1Click:Connect(function()
-	UI_SCALE = math.clamp(UI_SCALE + 0.1, 0.5, 1.5)
-	updateScale()
+mini.MouseButton1Click:Connect(function()
+	frame.Visible = true
+	mini.Visible = false
 end)
 
-updateScale()
-
---// ANTI GAMEPLAY PAUSE BUTTON (CONFIG PAGE)
-
-local antiPauseBtn = createButton(
-	Config,
-	UDim2.new(1, -20, 0, 30),
-	UDim2.new(0, 10, 0, 50),
+--// CLEANUP
+local connection
+connection = Players.PlayerRemoving:Connect(function(p)
+	if p == player then
+		gui:Destroy()
+		connection:Disconnect()
+	end
+end) 0, 50),
 	"Anti Gameplay Pause",
 	CONFIG.COLORS.BTN_INACTIVE,
 	CONFIG.COLORS.MAIN,
