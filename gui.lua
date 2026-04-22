@@ -275,7 +275,7 @@ for i, data in ipairs(autoTabs) do
 		setActiveAutoBtn(btn)
 	end
 end
-
+	 
 local PlayerP = newPage("Player")
 
 
@@ -299,90 +299,6 @@ local function switch(tab)
 	end
 end
 
---// AUTO PAGE SUB-PAGES (5 individual pages)
-local autoSubPages = {}
-local function newAutoSubPage(name, title)
-	local pageFrame = createFrame(Auto, UDim2.new(1, 0, 1, -28), UDim2.new(0, 0, 0, 28), CONFIG.COLORS.BG, 0)
-	pageFrame.BackgroundTransparency = 1
-	pageFrame.Visible = false
-	autoSubPages[name] = pageFrame
-	
-	-- Title label for each sub-page
-	createLabel(pageFrame, title, UDim2.new(1, 0, 1, 0), UDim2.new(0, 12, 0, 0), Enum.Font.GothamBold, 14, CONFIG.COLORS.MAIN, 1)
-	
-	return pageFrame
-end
-
-newAutoSubPage("AutoMob", "Auto Mob")
-newAutoSubPage("AutoBoss", "Auto Boss")
-newAutoSubPage("AutoHaki", "Auto Haki")
-newAutoSubPage("AutoUpgrade", "Auto Upgrade")
-newAutoSubPage("AutoBuy", "Auto Buy")
-
-local function switchAutoSubPage(subTab)
-	for n, p in pairs(autoSubPages) do
-		p.Visible = (n == subTab)
-	end
-end
-
---// AUTO TOP BAR (Smaller version like main top bar)
-local autoTopBar = createFrame(Auto, UDim2.new(1, 0, 0, 28), UDim2.new(0, 0, 0, 0), CONFIG.COLORS.DARK, 6)
-local autoListLayout = Instance.new("UIListLayout")
-autoListLayout.FillDirection = Enum.FillDirection.Horizontal
-autoListLayout.Padding = UDim.new(0, 6)
-autoListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-autoListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-autoListLayout.Parent = autoTopBar
-
-local autoPad = Instance.new("UIPadding")
-autoPad.PaddingLeft = UDim.new(0, 6)
-autoPad.PaddingRight = UDim.new(0, 6)
-autoPad.PaddingTop = UDim.new(0, 2)
-autoPad.PaddingBottom = UDim.new(0, 2)
-autoPad.Parent = autoTopBar
-
---// 5 AUTO BUTTONS (Smaller)
-local autoSubBtnsData = {
-	{"AutoMob", "Mob"},
-	{"AutoBoss", "Boss"},
-	{"AutoHaki", "Haki"},
-	{"AutoUpgrade", "Upgrade"},
-	{"AutoBuy", "Buy"}
-}
-
-local activeAutoBtn
-local function setActiveAutoBtn(btn)
-	if activeAutoBtn then
-		activeAutoBtn.BackgroundColor3 = CONFIG.COLORS.BTN_INACTIVE
-	end
-	activeAutoBtn = btn
-	btn.BackgroundColor3 = CONFIG.COLORS.BTN_ACTIVE
-end
-
-for _, data in ipairs(autoSubBtnsData) do
-	local btn = createButton(autoTopBar, UDim2.new(0, 70, 0, 20), UDim2.new(0, 0, 0, 0), data[2], CONFIG.COLORS.BTN_INACTIVE, CONFIG.COLORS.MAIN, 4)
-	btn.Font = Enum.Font.Gotham
-	btn.TextSize = 10
-	btn.TextXAlignment = Enum.TextXAlignment.Center
-	
-	btn.MouseButton1Click:Connect(function()
-		switchAutoSubPage(data[1])
-		setActiveAutoBtn(btn)
-	end)
-end
-
--- Show first sub-page by default
-autoSubPages.AutoMob.Visible = true
-
---// ACTIVE TAB
-local activeBtn
-local function setActive(btn)
-	if activeBtn then
-		activeBtn.BackgroundColor3 = CONFIG.COLORS.BTN_INACTIVE
-	end
-	activeBtn = btn
-	btn.BackgroundColor3 = CONFIG.COLORS.BTN_ACTIVE
-end
 
 --// TABS
 local tabs = {
