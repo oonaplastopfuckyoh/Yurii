@@ -255,7 +255,7 @@ local autoTabs = {
 for i, data in ipairs(autoTabs) do
 	local btn = createButton(
 		autoTopBar,
-		UDim2.new(0, 75, 0, 20),
+		UDim2.new(0, 70, 0, 20),
 		UDim2.new(0, 0, 0, 0),
 		data[2],
 		CONFIG.COLORS.BTN_INACTIVE,
