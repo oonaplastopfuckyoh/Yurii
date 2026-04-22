@@ -169,19 +169,19 @@ local main = newPage("main")
 
 local Auto = newPage("Auto")
 
---// AUTO SUB-PAGE SYSTEM (UPDATED CLEAN VERSION)
+--// AUTO SUB-PAGE SYSTEM (FIXED + CLEAN)
 
 local autoPages = {}
 
 local autoHolder = createFrame(Auto, UDim2.new(1, 0, 1, 0), UDim2.new(0, 0, 0, 0), CONFIG.COLORS.BG, 0)
 autoHolder.BackgroundTransparency = 1
 
---// TOP BAR FOR AUTO TABS
+--// TOP BAR
 local autoTopBar = createFrame(autoHolder, UDim2.new(1, 0, 0, 35), UDim2.new(0, 0, 0, 0), CONFIG.COLORS.DARK, 0)
 
 local autoList = Instance.new("UIListLayout")
 autoList.FillDirection = Enum.FillDirection.Horizontal
-autoList.Padding = UDim.new(0, 6)
+autoList.Padding = UDim.new(0, 8)
 autoList.VerticalAlignment = Enum.VerticalAlignment.Center
 autoList.Parent = autoTopBar
 
@@ -189,15 +189,30 @@ local autoPad = Instance.new("UIPadding")
 autoPad.PaddingLeft = UDim.new(0, 8)
 autoPad.Parent = autoTopBar
 
---// PAGE CONTAINER
-local autoPageHolder = createFrame(autoHolder, UDim2.new(1, 0, 1, -35), UDim2.new(0, 0, 0, 35), CONFIG.COLORS.BG, 0)
+autoTopBar.ClipsDescendants = true
+
+--// PAGE HOLDER
+local autoPageHolder = createFrame(
+	autoHolder,
+	UDim2.new(1, 0, 1, -35),
+	UDim2.new(0, 0, 0, 35),
+	CONFIG.COLORS.BG,
+	0
+)
 autoPageHolder.BackgroundTransparency = 1
 
---// CREATE PAGES
+--// CREATE AUTO PAGES
 local function createAutoPage(name)
-	local p = createFrame(autoPageHolder, UDim2.new(1, 0, 1, 0), UDim2.new(0, 0, 0, 0), CONFIG.COLORS.BG, 0)
+	local p = createFrame(
+		autoPageHolder,
+		UDim2.new(1, 0, 1, 0),
+		UDim2.new(0, 0, 0, 0),
+		CONFIG.COLORS.BG,
+		0
+	)
 	p.BackgroundTransparency = 1
 	p.Visible = false
+	p.ZIndex = 2
 	autoPages[name] = p
 	return p
 end
@@ -207,12 +222,17 @@ local AutoBoss = createAutoPage("AutoBoss")
 local AutoWeapon = createAutoPage("AutoWeapon")
 local AutoBuy = createAutoPage("AutoBuy")
 
--- default page
+-- ensure only one visible
+for _, p in pairs(autoPages) do
+	p.Visible = false
+end
+
 AutoMob.Visible = true
 
+--// SWITCH FUNCTION
 local function switchAuto(tab)
-	for n, p in pairs(autoPages) do
-		p.Visible = (n == tab)
+	for name, page in pairs(autoPages) do
+		page.Visible = (name == tab)
 	end
 end
 
@@ -227,7 +247,7 @@ local function setAutoActive(btn)
 	btn.BackgroundColor3 = CONFIG.COLORS.BTN_ACTIVE
 end
 
---// AUTO TAB BUTTONS (NO ICONS)
+--// TABS
 local autoTabs = {
 	{name = "AutoMob", text = "Auto Mob"},
 	{name = "AutoBoss", text = "Auto Boss"},
@@ -238,7 +258,7 @@ local autoTabs = {
 for i, tab in ipairs(autoTabs) do
 	local btn = createButton(
 		autoTopBar,
-		UDim2.new(0, 100, 1, -8),
+		UDim2.new(0, 130, 1, -8), -- wider buttons
 		UDim2.new(0, 0, 0, 0),
 		tab.text,
 		CONFIG.COLORS.BTN_INACTIVE,
@@ -254,6 +274,7 @@ for i, tab in ipairs(autoTabs) do
 		setAutoActive(btn)
 	end)
 
+	-- default active
 	if i == 1 then
 		setAutoActive(btn)
 	end
