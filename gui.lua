@@ -169,40 +169,46 @@ local main = newPage("main")
 
 local Auto = newPage("Auto")
 
---// AUTO SUB-PAGE SYSTEM (FIXED STRUCTURE SAFE)
+--// CLEAN MINI TOP BAR (NO DUPLICATES)
 
 local autoPages = {}
 
--- IMPORTANT: USE Auto directly, DO NOT create autoHolder
-Auto.BackgroundTransparency = 1
+-- TOP BAR
+local autoTopBar = createFrame(
+	Auto,
+	UDim2.new(1, 0, 0, 24),
+	UDim2.new(0, 0, 0, 0),
+	CONFIG.COLORS.SIDEBAR_BG,
+	6
+)
 
---// TOP BAR (INSIDE AUTO PAGE)
-local autoList = Instance.new("UIListLayout")
-autoList.FillDirection = Enum.FillDirection.Horizontal
-autoList.Padding = UDim.new(0, 10)
-autoList.VerticalAlignment = Enum.VerticalAlignment.Center
-autoList.Parent = autoTopBar
+-- LAYOUT (CENTERED & EVEN)
+local autoListLayout = Instance.new("UIListLayout")
+autoListLayout.FillDirection = Enum.FillDirection.Horizontal
+autoListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+autoListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+autoListLayout.Padding = UDim.new(0, 6)
+autoListLayout.Parent = autoTopBar
 
+-- PADDING (SLIM)
 local autoPad = Instance.new("UIPadding")
-autoPad.PaddingLeft = UDim.new(0, 7)
-autoPad.PaddingRight = UDim.new(0, 7)
+autoPad.PaddingLeft = UDim.new(0, 8)
+autoPad.PaddingRight = UDim.new(0, 8)
 autoPad.PaddingTop = UDim.new(0, 1)
 autoPad.PaddingBottom = UDim.new(0, 1)
 autoPad.Parent = autoTopBar
 
---// PAGE AREA (REST OF AUTO PAGE)
+-- PAGE HOLDER (UNDER BAR)
 local autoPageHolder = createFrame(
 	Auto,
-	UDim2.new(1, 0, 1, -40),
-	UDim2.new(0, 0, 0, 40),
+	UDim2.new(1, 0, 1, -24),
+	UDim2.new(0, 0, 0, 24),
 	CONFIG.COLORS.BG,
 	0
 )
-
 autoPageHolder.BackgroundTransparency = 1
-autoPageHolder.ClipsDescendants = true
 
---// CREATE SUB PAGES
+-- CREATE PAGES
 local function createAutoPage(name)
 	local p = createFrame(
 		autoPageHolder,
@@ -211,7 +217,6 @@ local function createAutoPage(name)
 		CONFIG.COLORS.BG,
 		0
 	)
-
 	p.BackgroundTransparency = 1
 	p.Visible = false
 	autoPages[name] = p
@@ -225,53 +230,53 @@ local AutoBuy = createAutoPage("AutoBuy")
 
 AutoMob.Visible = true
 
---// SWITCH
+-- SWITCH FUNCTION
 local function switchAuto(tab)
 	for name, page in pairs(autoPages) do
 		page.Visible = (name == tab)
 	end
 end
 
---// ACTIVE BUTTON
-local activeBtn
-
-local function setActive(btn)
-	if activeBtn then
-		activeBtn.BackgroundColor3 = CONFIG.COLORS.BTN_INACTIVE
+-- ACTIVE BUTTON
+local activeAutoBtn
+local function setActiveAutoBtn(btn)
+	if activeAutoBtn then
+		activeAutoBtn.BackgroundColor3 = CONFIG.COLORS.BTN_INACTIVE
 	end
-	activeBtn = btn
+	activeAutoBtn = btn
 	btn.BackgroundColor3 = CONFIG.COLORS.BTN_ACTIVE
 end
 
---// BUTTONS
+-- BUTTON DATA
 local autoTabs = {
-	{name = "AutoMob", text = "Auto Mob"},
-	{name = "AutoBoss", text = "Auto Boss"},
-	{name = "AutoWeapon", text = "Auto Weapon"},
-	{name = "AutoBuy", text = "Auto Buy"},
+	{"AutoMob", "Mob"},
+	{"AutoBoss", "Boss"},
+	{"AutoWeapon", "Weapon"},
+	{"AutoBuy", "Buy"}
 }
 
-for i, tab in ipairs(autoTabs) do
+-- CREATE BUTTONS (WIDER + CLEAN)
+for i, data in ipairs(autoTabs) do
 	local btn = createButton(
 		autoTopBar,
-		UDim2.new(1, 0, 1, -40),
-     	UDim2.new(0, 0, 0, 40),
-		tab.text,
+		UDim2.new(0, 75, 0, 20),
+		UDim2.new(0, 0, 0, 0),
+		data[2],
 		CONFIG.COLORS.BTN_INACTIVE,
 		CONFIG.COLORS.MAIN,
-		6
+		4
 	)
 
-	btn.Font = Enum.Font.GothamBold
-	btn.TextSize = 12
+	btn.Font = Enum.Font.Gotham
+	btn.TextSize = 11
 
 	btn.MouseButton1Click:Connect(function()
-		switchAuto(tab.name)
-		setActive(btn)
+		switchAuto(data[1])
+		setActiveAutoBtn(btn)
 	end)
 
 	if i == 1 then
-		setActive(btn)
+		setActiveAutoBtn(btn)
 	end
 end
 
