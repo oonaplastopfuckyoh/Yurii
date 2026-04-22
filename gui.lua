@@ -289,6 +289,31 @@ local Misc = newPage("Misc")
 
 local Config = newPage("Config")
 
+local UI_SCALE = 1
+
+local function applyScale()
+	-- FRAME SIZE
+	frame.Size = UDim2.new(
+		0, CONFIG.SIZES.FRAME_WIDTH * UI_SCALE,
+		0, CONFIG.SIZES.FRAME_HEIGHT * UI_SCALE
+	)
+
+	-- SIDEBAR WIDTH
+	sidebar.Size = UDim2.new(
+		0, CONFIG.SIZES.SIDEBAR_WIDTH * UI_SCALE,
+		1, 0
+	)
+
+	-- TOP BAR HEIGHT
+	topBar.Size = UDim2.new(1, 0, 0, 24 * UI_SCALE)
+
+	-- AUTO TOP BAR (if exists)
+	if autoTopBar then
+		autoTopBar.Size = UDim2.new(1, 0, 0, 28 * UI_SCALE)
+	end
+end
+
+
  --// UI SCALE CONFIG (MATCH AUTO TOP BAR STYLE)
 
 local scaleValue = 1
@@ -352,17 +377,19 @@ local plusBtn = createButton(
 
 -- UPDATE
 local function updateScale()
-	local percent = math.floor(scaleValue * 100)
+	local percent = math.floor(UI_SCALE * 100)
 	percentLabel.Text = percent .. "%"
+
+	applyScale()
 end
 
 minusBtn.MouseButton1Click:Connect(function()
-	scaleValue = math.clamp(scaleValue - 0.1, minScale, maxScale)
+	UI_SCALE = math.clamp(UI_SCALE - 0.1, 0.5, 1.5)
 	updateScale()
 end)
 
 plusBtn.MouseButton1Click:Connect(function()
-	scaleValue = math.clamp(scaleValue + 0.1, minScale, maxScale)
+	UI_SCALE = math.clamp(UI_SCALE + 0.1, 0.5, 1.5)
 	updateScale()
 end)
 
