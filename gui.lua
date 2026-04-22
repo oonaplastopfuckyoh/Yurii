@@ -177,14 +177,6 @@ local autoPages = {}
 Auto.BackgroundTransparency = 1
 
 --// TOP BAR (INSIDE AUTO PAGE)
-local autoTopBar = createFrame(
-	Auto,
-	UDim2.new(1, 0, 0, 24),
-	UDim2.new(0, 0, 0, 0),
-	CONFIG.COLORS.DARK,
-	6
-)
-
 local autoList = Instance.new("UIListLayout")
 autoList.FillDirection = Enum.FillDirection.Horizontal
 autoList.Padding = UDim.new(0, 10)
@@ -192,8 +184,8 @@ autoList.VerticalAlignment = Enum.VerticalAlignment.Center
 autoList.Parent = autoTopBar
 
 local autoPad = Instance.new("UIPadding")
-autoPad.PaddingLeft = UDim.new(0, 8)
-autoPad.PaddingRight = UDim.new(0, 8)
+autoPad.PaddingLeft = UDim.new(0, 7)
+autoPad.PaddingRight = UDim.new(0, 7)
 autoPad.PaddingTop = UDim.new(0, 1)
 autoPad.PaddingBottom = UDim.new(0, 1)
 autoPad.Parent = autoTopBar
