@@ -131,4 +131,20 @@ toggle.MouseButton1Click:Connect(function()
 	toggle.Text = running and "Pause Auto" or "Start Auto"
 	status.Text = running and "Status: Running" or "Status: Paused"
 end)
+
+
+	
+local function togglePauseState()
+    local paused = Player.GameplayPaused and NetworkPauseGui.Enabled and not isFirstPauseChange
+    isFirstPauseChange = false
+    if paused then
+        Notification:Show()
+    else
+        Notification:Hide()
+    end
+    if FFlagGameplayPausePausesInteraction then
+        NetworkPauseContainer.Active = paused
+    end
+    RunService:SetRobloxGuiFocused(paused)
+end
   
