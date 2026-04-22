@@ -3,7 +3,7 @@ local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local player = Players.LocalPlayer
 
---// CONFIG
+--// CONFIG - All magic numbers in one place
 local CONFIG = {
 	COLORS = {
 		MAIN = Color3.fromRGB(170, 90, 255),
@@ -79,20 +79,60 @@ local frame = createFrame(gui, UDim2.new(0, CONFIG.SIZES.FRAME_WIDTH, 0, CONFIG.
 
 --// TOP BAR
 local topBar = createFrame(frame, UDim2.new(1, 0, 0.18, 0), UDim2.new(0, 0, 0, 0), CONFIG.COLORS.DARK, CONFIG.SIZES.CORNER_RADIUS)
+
 createLabel(topBar, "Hub ni Yuri", UDim2.new(1, 0, 1, 0), UDim2.new(0, 0, 0, 0), Enum.Font.Arcade, 22, CONFIG.COLORS.MAIN, 1)
 
 --// CLOSE BUTTON
 local closeBtn = createButton(topBar, UDim2.new(0, 24, 0, 24), UDim2.new(1, -40, 0.5, -12), "×", CONFIG.COLORS.CLOSE_BTN, Color3.fromRGB(255, 255, 255), 6)
+closeBtn.Font = Enum.Font.GothamBold
+closeBtn.TextSize = 14
 
---// MINI BUTTON (FIXED)
+--// MINI Y BUTTON (IMAGE BUTTON)
 local mini = Instance.new("ImageButton")
-mini.Size = UDim2.new(0, 60, 0, 30)
-mini.Position = UDim2.new(0.5, -30, 0.5, -15)
-mini.BackgroundColor3 = CONFIG.COLORS.SIDEBAR_BG
+mini.Size = UDim2.new(0, 42, 0, 42)
+mini.Position = UDim2.new(0, 20, 0.5, -21)
+mini.BackgroundColor3 = CONFIG.COLORS.MAIN
+mini.BorderSizePixel = 0
 mini.Visible = false
 mini.ZIndex = 9999
 mini.Parent = gui
+
 Instance.new("UICorner", mini).CornerRadius = UDim.new(0, 6)
+
+mini.Image = "rbxassetid://129240920074049"
+mini.ScaleType = Enum.ScaleType.Fit
+mini.AutoButtonColor = true
+
+--// DRAG SYSTEM
+local draggingObjects = {}
+
+local function createDragHandler(obj, handle)
+	handle.InputBegan:Connect(function(i)
+		if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
+			draggingObjects[obj] = {dragging = true, start = i.Position, pos = obj.Position}
+		end
+	end)
+
+	handle.InputEnded:Connect(function(i)
+		if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
+			if draggingObjects[obj] then
+				draggingObjects[obj].dragging = false
+			end
+		end
+	end)
+end
+
+UserInputService.InputChanged:Connect(function(i)
+	for obj, data in pairs(draggingObjects) do
+		if data.dragging then
+			local delta = i.Position - data.start
+			obj.Position = UDim2.new(data.pos.X.Scale, data.pos.X.Offset + delta.X, data.pos.Y.Scale, data.pos.Y.Offset + delta.Y)
+		end
+	end
+end)
+
+createDragHandler(frame, topBar)
+createDragHandler(mini, mini)
 
 --// BODY
 local body = createFrame(frame, UDim2.new(1, 0, 0.82, 0), UDim2.new(0, 0, 0.18, 0), CONFIG.COLORS.BG, 0)
@@ -124,11 +164,139 @@ local function newPage(name)
 end
 
 local main = newPage("main")
+
+
+
 local Auto = newPage("Auto")
+
+--// AUTO SUB-PAGE SYSTEM (FIXED STRUCTURE SAFE)
+
+local autoPages = {}
+
+-- IMPORTANT: USE Auto directly, DO NOT create autoHolder
+Auto.BackgroundTransparency = 1
+
+--// TOP BAR (INSIDE AUTO PAGE)
+local autoTopBar = createFrame(
+	Auto,
+	UDim2.new(1, 0, 0, 24),
+	UDim2.new(0, 0, 0, 0),
+	CONFIG.COLORS.DARK,
+	6
+)
+
+local autoList = Instance.new("UIListLayout")
+autoList.FillDirection = Enum.FillDirection.Horizontal
+autoList.Padding = UDim.new(0, 10)
+autoList.VerticalAlignment = Enum.VerticalAlignment.Center
+autoList.Parent = autoTopBar
+
+local autoPad = Instance.new("UIPadding")
+autoPad.PaddingLeft = UDim.new(0, 8)
+autoPad.PaddingRight = UDim.new(0, 8)
+autoPad.PaddingTop = UDim.new(0, 1)
+autoPad.PaddingBottom = UDim.new(0, 1)
+autoPad.Parent = autoTopBar
+
+--// PAGE AREA (REST OF AUTO PAGE)
+local autoPageHolder = createFrame(
+	Auto,
+	UDim2.new(1, 0, 1, -40),
+	UDim2.new(0, 0, 0, 40),
+	CONFIG.COLORS.BG,
+	0
+)
+
+autoPageHolder.BackgroundTransparency = 1
+autoPageHolder.ClipsDescendants = true
+
+--// CREATE SUB PAGES
+local function createAutoPage(name)
+	local p = createFrame(
+		autoPageHolder,
+		UDim2.new(1, 0, 1, 0),
+		UDim2.new(0, 0, 0, 0),
+		CONFIG.COLORS.BG,
+		0
+	)
+
+	p.BackgroundTransparency = 1
+	p.Visible = false
+	autoPages[name] = p
+	return p
+end
+
+local AutoMob = createAutoPage("AutoMob")
+local AutoBoss = createAutoPage("AutoBoss")
+local AutoWeapon = createAutoPage("AutoWeapon")
+local AutoBuy = createAutoPage("AutoBuy")
+
+AutoMob.Visible = true
+
+--// SWITCH
+local function switchAuto(tab)
+	for name, page in pairs(autoPages) do
+		page.Visible = (name == tab)
+	end
+end
+
+--// ACTIVE BUTTON
+local activeBtn
+
+local function setActive(btn)
+	if activeBtn then
+		activeBtn.BackgroundColor3 = CONFIG.COLORS.BTN_INACTIVE
+	end
+	activeBtn = btn
+	btn.BackgroundColor3 = CONFIG.COLORS.BTN_ACTIVE
+end
+
+--// BUTTONS
+local autoTabs = {
+	{name = "AutoMob", text = "Auto Mob"},
+	{name = "AutoBoss", text = "Auto Boss"},
+	{name = "AutoWeapon", text = "Auto Weapon"},
+	{name = "AutoBuy", text = "Auto Buy"},
+}
+
+for i, tab in ipairs(autoTabs) do
+	local btn = createButton(
+		autoTopBar,
+		UDim2.new(1, 0, 1, -40),
+     	UDim2.new(0, 0, 0, 40),
+		tab.text,
+		CONFIG.COLORS.BTN_INACTIVE,
+		CONFIG.COLORS.MAIN,
+		6
+	)
+
+	btn.Font = Enum.Font.GothamBold
+	btn.TextSize = 12
+
+	btn.MouseButton1Click:Connect(function()
+		switchAuto(tab.name)
+		setActive(btn)
+	end)
+
+	if i == 1 then
+		setActive(btn)
+	end
+end
+
 local PlayerP = newPage("Player")
+
+
+
 local Webhook = newPage("Webhook")
+
+
+
 local Misc = newPage("Misc")
+
+
 local Config = newPage("Config")
+
+
 
 main.Visible = true
 
@@ -138,73 +306,77 @@ local function switch(tab)
 	end
 end
 
---// AUTO SYSTEM (FIXED, SINGLE VERSION ONLY)
-local autoPages = {}
-
-local autoTopBar = createFrame(Auto, UDim2.new(1, 0, 0, 32), UDim2.new(0, 0, 0, 0), CONFIG.COLORS.SIDEBAR_BG, 6)
-
-local function newAutoPage(name)
-	local p = createFrame(Auto, UDim2.new(1, 0, 1, -32), UDim2.new(0, 0, 0, 32), CONFIG.COLORS.BG, 0)
-	p.BackgroundTransparency = 1
-	p.Visible = false
-	autoPages[name] = p
-	return p
+--// AUTO PAGE SUB-PAGES (5 individual pages)
+local autoSubPages = {}
+local function newAutoSubPage(name, title)
+	local pageFrame = createFrame(Auto, UDim2.new(1, 0, 1, -28), UDim2.new(0, 0, 0, 28), CONFIG.COLORS.BG, 0)
+	pageFrame.BackgroundTransparency = 1
+	pageFrame.Visible = false
+	autoSubPages[name] = pageFrame
+	
+	-- Title label for each sub-page
+	createLabel(pageFrame, title, UDim2.new(1, 0, 1, 0), UDim2.new(0, 12, 0, 0), Enum.Font.GothamBold, 14, CONFIG.COLORS.MAIN, 1)
+	
+	return pageFrame
 end
 
-local AutoMob = newAutoPage("AutoMob")
-local AutoBoss = newAutoPage("AutoBoss")
-local AutoWeapon = newAutoPage("AutoWeapon")
-local AutoBuy = newAutoPage("AutoBuy")
+newAutoSubPage("AutoMob", "Auto Mob")
+newAutoSubPage("AutoBoss", "Auto Boss")
+newAutoSubPage("AutoHaki", "Auto Haki")
+newAutoSubPage("AutoUpgrade", "Auto Upgrade")
+newAutoSubPage("AutoBuy", "Auto Buy")
 
-AutoMob.Visible = true
-
-local function switchAuto(tab)
-	for n, p in pairs(autoPages) do
-		p.Visible = (n == tab)
+local function switchAutoSubPage(subTab)
+	for n, p in pairs(autoSubPages) do
+		p.Visible = (n == subTab)
 	end
 end
 
-local autoBtns = {
-	{"AutoMob","Mob"},
-	{"AutoBoss","Boss"},
-	{"AutoWeapon","Weapon"},
-	{"AutoBuy","Buy"},
+--// AUTO TOP BAR (Smaller version like main top bar)
+local autoTopBar = createFrame(Auto, UDim2.new(1, 0, 0, 28), UDim2.new(0, 0, 0, 0), CONFIG.COLORS.DARK, 6)
+local autoListLayout = Instance.new("UIListLayout")
+autoListLayout.FillDirection = Enum.FillDirection.Horizontal
+autoListLayout.Padding = UDim.new(0, 6)
+autoListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+autoListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+autoListLayout.Parent = autoTopBar
+
+local autoPad = Instance.new("UIPadding")
+autoPad.PaddingLeft = UDim.new(0, 6)
+autoPad.PaddingRight = UDim.new(0, 6)
+autoPad.PaddingTop = UDim.new(0, 2)
+autoPad.PaddingBottom = UDim.new(0, 2)
+autoPad.Parent = autoTopBar
+
+--// 5 AUTO BUTTONS (Smaller)
+local autoSubBtnsData = {
+	{"AutoMob", "Mob"},
+	{"AutoBoss", "Boss"},
+	{"AutoHaki", "Haki"},
+	{"AutoUpgrade", "Upgrade"},
+	{"AutoBuy", "Buy"}
 }
 
-for i, data in ipairs(autoBtns) do
-	local btn = createButton(autoTopBar, UDim2.new(0, 70, 0, 22), UDim2.new(0, (i-1)*75 + 10, 0, 5), data[2], CONFIG.COLORS.BTN_INACTIVE, CONFIG.COLORS.MAIN, 4)
-	btn.MouseButton1Click:Connect(function()
-		switchAuto(data[1])
-	end)
+local activeAutoBtn
+local function setActiveAutoBtn(btn)
+	if activeAutoBtn then
+		activeAutoBtn.BackgroundColor3 = CONFIG.COLORS.BTN_INACTIVE
+	end
+	activeAutoBtn = btn
+	btn.BackgroundColor3 = CONFIG.COLORS.BTN_ACTIVE
 end
 
---// SIDEBAR TABS
-local tabs = {
-	{ "", "main", "Home"},
-	{ "⚡", "Auto", "Auto"},
-	{ "👤", "Player", "Player"},
-	{ "🌐", "Webhook", "Webhook"},
-	{ "•••", "Misc", "Misc"},
-	{ "⚙️", "Config", "Config"}
-}
-
-for _, tab in ipairs(tabs) do
-	local btn = createButton(sidebar, UDim2.new(1, -10, 0, 30), UDim2.new(0, 0, 0, 0), tab[3], CONFIG.COLORS.BTN_INACTIVE, CONFIG.COLORS.MAIN, 8)
+for _, data in ipairs(autoSubBtnsData) do
+	local btn = createButton(autoTopBar, UDim2.new(0, 70, 0, 20), UDim2.new(0, 0, 0, 0), data[2], CONFIG.COLORS.BTN_INACTIVE, CONFIG.COLORS.MAIN, 4)
+	btn.Font = Enum.Font.Gotham
+	btn.TextSize = 10
+	btn.TextXAlignment = Enum.TextXAlignment.Center
+	
 	btn.MouseButton1Click:Connect(function()
-		switch(tab[2])
+		switchAutoSubPage(data[1])
+		setActiveAutoBtn(btn)
 	end)
 end
-
---// TOGGLE
-closeBtn.MouseButton1Click:Connect(function()
-	frame.Visible = false
-	mini.Visible = true
-end)
-
-mini.MouseButton1Click:Connect(function()
-	frame.Visible = true
-	mini.Visible = false
-end)end
 
 -- Show first sub-page by default
 autoSubPages.AutoMob.Visible = true
