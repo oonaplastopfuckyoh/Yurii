@@ -191,13 +191,12 @@ autoPadContent.PaddingLeft = UDim.new(0, 8)
 autoPadContent.PaddingRight = UDim.new(0, 8)
 autoPadContent.Parent = autoContent
 
---// AUTO SECTIONS (Simple toggle buttons)
+--// AUTO SECTIONS (Simple toggle buttons) - Removed Switch Weapons
 local autoSections = {
 	{"Auto Mob", "AutoMob"},
 	{"Auto Boss", "AutoBoss"},
 	{"Auto Haki", "AutoHaki"},
 	{"Auto Upgrade", "AutoUpgrade"},
-	{"Switch Weapons", "SwitchWeapons"},
 	{"Auto Buy", "AutoBuy"}
 }
 
