@@ -289,94 +289,73 @@ local Misc = newPage("Misc")
 
 local Config = newPage("Config")
 
---// UI SCALE CONFIG (50% - 150%)
+ --// UI SCALE CONFIG (MATCH AUTO TOP BAR STYLE)
 
-local scaleValue = 1 -- 1 = 100%
+local scaleValue = 1
 local minScale = 0.5
 local maxScale = 1.5
 
--- CONTAINER
+-- MAIN FRAME (same width style, height matches Auto top bar feel)
 local scaleFrame = createFrame(
 	Config,
-	UDim2.new(0, 300, 0, 60),
-	UDim2.new(0, 20, 0, 20),
+	UDim2.new(1, -20, 0, 28), -- MATCH AUTO TOP BAR HEIGHT
+	UDim2.new(0, 10, 0, 10),
 	CONFIG.COLORS.SIDEBAR_BG,
 	8
 )
 
--- LABEL
-local title = createLabel(
+-- TITLE (left side)
+createLabel(
 	scaleFrame,
 	"UI Scale",
-	UDim2.new(0, 100, 0, 20),
-	UDim2.new(0, 10, 0, 5),
+	UDim2.new(0, 80, 1, 0),
+	UDim2.new(0, 10, 0, 0),
 	Enum.Font.GothamBold,
 	14,
 	CONFIG.COLORS.MAIN,
 	1
 )
 
--- BAR BACKGROUND
-local barBg = createFrame(
-	scaleFrame,
-	UDim2.new(0, 140, 0, 10),
-	UDim2.new(0, 100, 0, 25),
-	CONFIG.COLORS.DARK,
-	6
-)
-
--- BAR FILL
-local barFill = createFrame(
-	barBg,
-	UDim2.new(1, 0, 1, 0),
-	UDim2.new(0, 0, 0, 0),
-	CONFIG.COLORS.MAIN,
-	6
-)
-
--- PERCENT LABEL
+-- PERCENT (center)
 local percentLabel = createLabel(
 	scaleFrame,
 	"100%",
-	UDim2.new(0, 60, 0, 20),
-	UDim2.new(0, 250, 0, 20),
+	UDim2.new(0, 70, 1, 0),
+	UDim2.new(0.5, -35, 0, 0),
 	Enum.Font.GothamBold,
 	14,
 	CONFIG.COLORS.MAIN,
 	1
 )
 
--- BUTTONS (- / +)
+-- MINUS BUTTON (same height as top bar)
 local minusBtn = createButton(
 	scaleFrame,
-	UDim2.new(0, 30, 0, 30),
-	UDim2.new(0, 250, 0, 5),
+	UDim2.new(0, 30, 1, -6),
+	UDim2.new(1, -70, 0, 3),
 	"-",
 	CONFIG.COLORS.BTN_INACTIVE,
 	CONFIG.COLORS.MAIN,
 	6
 )
 
+-- PLUS BUTTON
 local plusBtn = createButton(
 	scaleFrame,
-	UDim2.new(0, 30, 0, 30),
-	UDim2.new(0, 280, 0, 5),
+	UDim2.new(0, 30, 1, -6),
+	UDim2.new(1, -35, 0, 3),
 	"+",
 	CONFIG.COLORS.BTN_INACTIVE,
 	CONFIG.COLORS.MAIN,
 	6
 )
 
--- FUNCTION TO UPDATE UI
+-- UPDATE
 local function updateScale()
 	local percent = math.floor(scaleValue * 100)
-
 	percentLabel.Text = percent .. "%"
-
-	barFill.Size = UDim2.new(scaleValue, 0, 1, 0)
 end
 
--- BUTTON LOGIC
 minusBtn.MouseButton1Click:Connect(function()
 	scaleValue = math.clamp(scaleValue - 0.1, minScale, maxScale)
 	updateScale()
@@ -388,8 +367,6 @@ plusBtn.MouseButton1Click:Connect(function()
 end)
 
 updateScale()
-
-main.Visible = true
 
 local function switch(tab)
 	for n, p in pairs(pages) do
