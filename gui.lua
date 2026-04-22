@@ -178,6 +178,77 @@ local function switch(tab)
 	end
 end
 
+--// AUTO PAGE SUB-PAGES
+local autoSubPages = {}
+local function newAutoSubPage(name)
+	local p = createFrame(Auto, UDim2.new(1, 0, 1, -40), UDim2.new(0, 0, 0, 40), CONFIG.COLORS.BG, 0)
+	p.BackgroundTransparency = 1
+	p.Visible = false
+	autoSubPages[name] = p
+	return p
+end
+
+local autoMobPage = newAutoSubPage("AutoMob")
+local autoBossPage = newAutoSubPage("AutoBoss")
+local autoHakiPage = newAutoSubPage("Haki")
+local autoSwitchPage = newAutoSubPage("SwitchWeapons")
+local autoBuyPage = newAutoSubPage("AutoBuy")
+
+local function switchAutoSubPage(subTab)
+	for n, p in pairs(autoSubPages) do
+		p.Visible = (n == subTab)
+	end
+end
+
+--// AUTO TOP BAR
+local autoTopBar = createFrame(Auto, UDim2.new(1, 0, 0, 40), UDim2.new(0, 0, 0, 0), CONFIG.COLORS.DARK, 0)
+local autoListLayout = Instance.new("UIListLayout")
+autoListLayout.FillDirection = Enum.FillDirection.Horizontal
+autoListLayout.Padding = UDim.new(0, 4)
+autoListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+autoListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+autoListLayout.Parent = autoTopBar
+
+local autoPad = Instance.new("UIPadding")
+autoPad.PaddingLeft = UDim.new(0, 8)
+autoPad.PaddingRight = UDim.new(0, 8)
+autoPad.PaddingTop = UDim.new(0, 4)
+autoPad.PaddingBottom = UDim.new(0, 4)
+autoPad.Parent = autoTopBar
+
+--// AUTO SUB-PAGE BUTTONS
+local autoSubBtns = {
+	{name = "AutoMob", displayName = "Auto Mob"},
+	{name = "AutoBoss", displayName = "Auto Boss"},
+	{name = "Haki", displayName = "Auto Haki"},
+	{name = "SwitchWeapons", displayName = "Switch Weapons"},
+	{name = "AutoBuy", displayName = "Auto Buy"}
+}
+
+local activeAutoBtn
+local function setActiveAutoBtn(btn)
+	if activeAutoBtn then
+		activeAutoBtn.BackgroundColor3 = CONFIG.COLORS.BTN_INACTIVE
+	end
+	activeAutoBtn = btn
+	btn.BackgroundColor3 = CONFIG.COLORS.BTN_ACTIVE
+end
+
+for i, subTab in ipairs(autoSubBtns) do
+	local btn = createButton(autoTopBar, UDim2.new(0, 70, 0, 28), UDim2.new(0, 0, 0, 0), subTab.displayName, CONFIG.COLORS.BTN_INACTIVE, CONFIG.COLORS.MAIN, 6)
+	btn.Font = Enum.Font.Gotham
+	btn.TextSize = 11
+	btn.TextXAlignment = Enum.TextXAlignment.Center
+	
+	btn.MouseButton1Click:Connect(function()
+		switchAutoSubPage(subTab.name)
+		setActiveAutoBtn(btn)
+	end)
+end
+
+-- Show first sub-page by default
+autoMobPage.Visible = true
+
 --// ACTIVE TAB
 local activeBtn
 local function setActive(btn)
